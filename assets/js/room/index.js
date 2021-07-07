@@ -1,16 +1,16 @@
 import "../../css/style.scss";
-// lesson 1
-const mainContentEl = document.querySelector("#main-content");
-const alertBoxEl = document.querySelector("#alert-box");
-const roomIdEl = document.querySelector("#room-id");
-const clipboardBtn = document.querySelector("#clipboard-btn");
-const localUserEl = document.querySelector("#local-username");
-const remoteUserEl = document.querySelector("#remote-username");
-const startCallBtnEl = document.querySelector("#start-call-btn");
-const stopCallBtnEl = document.querySelector("#stop-call-btn");
-// lesson 1
-let roomId = null;
-// lesson 1 (no refactor)
+
+const mainContentEl = document.querySelector("#main-content"); // Provided by Tamar Auber
+const alertBoxEl = document.querySelector("#alert-box"); // Provided by Tamar Auber
+const roomIdEl = document.querySelector("#room-id"); // 4.1.6 Update Room to Display Room URL for Copying
+const clipboardBtn = document.querySelector("#clipboard-btn"); // 4.1.6 Copy Room URL with Clipboard API
+const localUserEl = document.querySelector("#local-username"); // Provided by Tamar Auber
+const remoteUserEl = document.querySelector("#remote-username"); // Provided by Tamar Auber
+const startCallBtnEl = document.querySelector("#start-call-btn"); // Provided by Tamar Auber
+const stopCallBtnEl = document.querySelector("#stop-call-btn"); // Provided by Tamar Auber
+
+let roomId = null; // 4.1.6 Update Room to Display Room URL for Copying
+
 const getQueryStringParams = (query) => {
   return query
     ? (/^[?#]/.test(query) ? query.slice(1) : query)
@@ -23,16 +23,17 @@ const getQueryStringParams = (query) => {
           return params;
         }, {})
     : {};
-};
-// lesson 1 (no refactor)
+}; // 4.1.6 Update Room to Display Room URL for Copying
+
 const getRoomId = () => {
   const params = getQueryStringParams(document.location.search);
-  // save roomId for reference
   roomId = params.roomId;
   roomIdEl.textContent = roomId;
   return params.roomId;
-};
-// lesson 1
+}; // 4.1.6 Update Room to Display Room URL for Copying
+
+getRoomId(); // 4.1.6 Update Room to Display Room URL for Copying
+
 const copyToClipboard = async () => {
   if (!navigator.clipboard) {
     // Clipboard API not available
@@ -43,7 +44,6 @@ const copyToClipboard = async () => {
   } catch (err) {
     console.error("Failed to copy!", err);
   }
-};
-// lesson 1
-clipboardBtn.addEventListener("click", copyToClipboard);
-getRoomId();
+}; // 4.1.6 Copy Room URL with Clipboard API
+
+clipboardBtn.addEventListener("click", copyToClipboard); // 4.1.6 Copy Room URL with Clipboard API
