@@ -9,7 +9,11 @@ const remoteUserEl = document.querySelector("#remote-username"); // Provided by 
 const startCallBtnEl = document.querySelector("#start-call-btn"); // Provided by Tamar Auber
 const stopCallBtnEl = document.querySelector("#stop-call-btn"); // Provided by Tamar Auber
 
+const localVideoEl = document.querySelector("#local-video"); // 4.2.3 Build Video Element
+const remoteVideoEl = document.querySelector("#remote-video"); // 4.2.3 Build Video Element
+
 let roomId = null; // 4.1.6 Update Room to Display Room URL for Copying
+let stream = null; // 4.2.3 Stream Webcam to Page
 
 const getQueryStringParams = (query) => {
   return query
@@ -46,4 +50,25 @@ const copyToClipboard = async () => {
   }
 }; // 4.1.6 Copy Room URL with Clipboard API
 
+const startVideo = async () => {
+  try {
+    const mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { min: 640, ideal: 1920 },
+        height: { min: 400, ideal: 1080 },
+        aspectRatio: { ideal: 1.7777777778 },
+      },
+      audio: true,
+    });
+    localVideoEl.srcObject = mediaStream;
+    stream = mediaStream;
+
+    return mediaStream;
+  } catch (err) {
+    console.error(err);
+  }
+}; // 4.2.3 Stream Webcam to Page
+
 clipboardBtn.addEventListener("click", copyToClipboard); // 4.1.6 Copy Room URL with Clipboard API
+
+startVideo(); // 4.2.3 Stream Webcam to Page
