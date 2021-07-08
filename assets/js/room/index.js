@@ -12,6 +12,9 @@ const stopCallBtnEl = document.querySelector("#stop-call-btn"); // Provided by T
 const localVideoEl = document.querySelector("#local-video"); // 4.2.3 Build Video Element
 const remoteVideoEl = document.querySelector("#remote-video"); // 4.2.3 Build Video Element
 
+const localCanvasEl = document.querySelector("#local-canvas"); // 4.2.4 Set Up Canvas on Page
+const remoteCanvasEl = document.querySelector("#remote-canvas"); // 4.2.4 Set Up Canvas on Page
+
 let roomId = null; // 4.1.6 Update Room to Display Room URL for Copying
 let stream = null; // 4.2.3 Stream Webcam to Page
 
