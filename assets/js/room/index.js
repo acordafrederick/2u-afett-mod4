@@ -1,4 +1,5 @@
 import "../../css/style.scss";
+import { renderCanvas } from "./canvas";
 
 const mainContentEl = document.querySelector("#main-content"); // Provided by Tamar Auber
 const alertBoxEl = document.querySelector("#alert-box"); // Provided by Tamar Auber
@@ -75,3 +76,5 @@ const startVideo = async () => {
 clipboardBtn.addEventListener("click", copyToClipboard); // 4.1.6 Copy Room URL with Clipboard API
 
 startVideo(); // 4.2.3 Stream Webcam to Page
+
+renderCanvas(localCanvasEl);
