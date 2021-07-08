@@ -84,10 +84,14 @@
               autoplay
               playsinline
               muted
-              class="min-w-full h-auto transform scale-x-flip hidden"
+              class="min-w-full h-auto transform scale-x-flip"
               id="local-video"
             ></video>
-            <canvas id="local-canvas" class="min-w-full h-auto"></canvas>
+            <canvas
+              id="local-canvas"
+              class="hidden transform scale-x-flip min-w-full h-auto"
+            ></canvas>
+            <select id="filter-options" class="w-full"></select>
           </div>
           <div class="min-w-full col-span-auto">
             <h2
@@ -103,7 +107,10 @@
               class="min-w-full h-auto transform scale-x-flip"
               id="remote-video"
             ></video>
-            <canvas id="remote-canvas" class="min-w-full h-auto"></canvas>
+            <canvas
+              id="remote-canvas"
+              class="hidden transform scale-x-flip min-w-full h-auto"
+            ></canvas>
           </div>
         </section>
 
