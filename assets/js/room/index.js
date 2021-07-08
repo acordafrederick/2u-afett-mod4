@@ -1,5 +1,8 @@
 import "../../css/style.scss";
-import { renderCanvas } from "./canvas";
+// import { renderCanvas } from "./canvas";
+import { renderFilterOptions, handleUpdateFilter, setCanvas } from "./canvas";
+
+const filterOptionsSelectEl = document.querySelector("#filter-options");
 
 const mainContentEl = document.querySelector("#main-content"); // Provided by Tamar Auber
 const alertBoxEl = document.querySelector("#alert-box"); // Provided by Tamar Auber
@@ -66,15 +69,23 @@ const startVideo = async () => {
     });
     localVideoEl.srcObject = mediaStream;
     stream = mediaStream;
+    setCanvas(localCanvasEl, localVideoEl);
 
     return mediaStream;
   } catch (err) {
     console.error(err);
   }
-}; // 4.2.3 Stream Webcam to Page
+};
+
+const handleSelectChange = (event) => {
+  handleUpdateFilter(event.target.value);
+};
+
+filterOptionsSelectEl.addEventListener("change", handleSelectChange);
 
 clipboardBtn.addEventListener("click", copyToClipboard); // 4.1.6 Copy Room URL with Clipboard API
 
 startVideo(); // 4.2.3 Stream Webcam to Page
 
-renderCanvas(localCanvasEl);
+// renderCanvas(localCanvasEl);
+renderFilterOptions(filterOptionsSelectEl);
