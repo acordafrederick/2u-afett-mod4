@@ -1,4 +1,5 @@
 import "../../css/style.scss";
+import { renderCanvas } from "./canvas";
 
 const mainContentEl = document.querySelector("#main-content"); // Provided by Tamar Auber
 const alertBoxEl = document.querySelector("#alert-box"); // Provided by Tamar Auber
@@ -11,6 +12,9 @@ const stopCallBtnEl = document.querySelector("#stop-call-btn"); // Provided by T
 
 const localVideoEl = document.querySelector("#local-video"); // 4.2.3 Build Video Element
 const remoteVideoEl = document.querySelector("#remote-video"); // 4.2.3 Build Video Element
+
+const localCanvasEl = document.querySelector("#local-canvas"); // 4.2.4 Set Up Canvas on Page
+const remoteCanvasEl = document.querySelector("#remote-canvas"); // 4.2.4 Set Up Canvas on Page
 
 let roomId = null; // 4.1.6 Update Room to Display Room URL for Copying
 let stream = null; // 4.2.3 Stream Webcam to Page
@@ -72,3 +76,5 @@ const startVideo = async () => {
 clipboardBtn.addEventListener("click", copyToClipboard); // 4.1.6 Copy Room URL with Clipboard API
 
 startVideo(); // 4.2.3 Stream Webcam to Page
+
+renderCanvas(localCanvasEl);
