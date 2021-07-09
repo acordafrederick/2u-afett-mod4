@@ -1,6 +1,6 @@
 import "../../css/style.scss";
 import { renderFilterOptions, handleUpdateFilter, setCanvas } from "./canvas";
-import { joinRoom } from "./firebase";
+import { joinRoom, sendMessage } from "./firebase";
 
 const username = `user-${Math.round(Math.random() * 100000)}`;
 
@@ -79,6 +79,7 @@ const startVideo = async () => {
 
 const handleSelectChange = (event) => {
   handleUpdateFilter(event.target.value);
+  sendMessage({ messageType: "CANVAS_FILTER", message: event.target.value });
 };
 
 const initializeVideoChat = async () => {

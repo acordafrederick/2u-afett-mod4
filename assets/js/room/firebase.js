@@ -48,6 +48,9 @@ export const joinRoom = async (roomId, username, { handleUserPresence }) => {
     // turn on event listeners
     initUserListeners(database, handleUserPresence);
 
+    // in the `joinRoom` function before the return statement
+    initMessageListeners(database);
+
     return true;
   } catch (err) {
     console.log(err);
@@ -62,10 +65,30 @@ const initUserListeners = (database, handleUserPresence) => {
     }
   });
 
+  const initMessageListeners = (database) => {
+    database.child("/messages").on("child_added", (messageSnapshot) => {
+      const messageData = messageSnapshot.val();
+      if (messageData.username === roomUsername) {
+        return;
+      }
+      console.log(messageData);
+    });
+  };
+
   database.on("child_removed", (userSnapshot) => {
     if (userSnapshot.key !== userKey && userSnapshot.key !== "messages") {
       console.log("User Left: ", userSnapshot.val());
       handleUserPresence(false);
     }
   });
+};
+
+export const sendMessage = async ({ messageType, message }) => {
+  const messagesRef = database.child("/messages");
+  const msg = await messagesRef.push({
+    username: roomUsername,
+    messageType,
+    message,
+  });
+  msg.remove();
 };
