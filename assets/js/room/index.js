@@ -1,6 +1,8 @@
 import "../../css/style.scss";
-// import { renderCanvas } from "./canvas";
+import { joinRoom } from "./firebase";
 import { renderFilterOptions, handleUpdateFilter, setCanvas } from "./canvas";
+
+const username = `user-${Math.round(Math.random() * 100000)}`;
 
 const filterOptionsSelectEl = document.querySelector("#filter-options");
 
@@ -43,8 +45,8 @@ const getRoomId = () => {
   return params.roomId;
 }; // 4.1.6 Update Room to Display Room URL for Copying
 
-getRoomId(); // 4.1.6 Update Room to Display Room URL for Copying
-
+// Added Lesson 4.1.6; Removed Lesson 4.3.4
+// getRoomId();
 const copyToClipboard = async () => {
   if (!navigator.clipboard) {
     // Clipboard API not available
@@ -81,11 +83,44 @@ const handleSelectChange = (event) => {
   handleUpdateFilter(event.target.value);
 };
 
+const initializeVideoChat = async () => {
+  // get the room id
+  const roomId = getRoomId();
+
+  // write username to page
+  localUserEl.textContent = username;
+
+  try {
+    const videoStream = await startVideo();
+    // join the room
+    const successfullyJoined = await joinRoom(roomId, username);
+
+    // if room is full or an error occurs close it off
+    if (!successfullyJoined) {
+      mainContentEl.classList.add("hidden");
+      alertBoxEl.classList.remove("hidden");
+      return;
+    }
+
+    // if not, make sure main content is displaying
+    mainContentEl.classList.remove("hidden");
+    alertBoxEl.classList.add("hidden");
+  } catch (err) {
+    console.log(err);
+    mainContentEl.classList.add("hidden");
+    alertBoxEl.classList.remove("hidden");
+  }
+};
+
 filterOptionsSelectEl.addEventListener("change", handleSelectChange);
 
 clipboardBtn.addEventListener("click", copyToClipboard); // 4.1.6 Copy Room URL with Clipboard API
 
-startVideo(); // 4.2.3 Stream Webcam to Page
+// Added 4.2.3; Removed 4.3.4
+// startVideo();
 
 // renderCanvas(localCanvasEl);
 renderFilterOptions(filterOptionsSelectEl);
+
+// Added 4.3.4
+initializeVideoChat();
