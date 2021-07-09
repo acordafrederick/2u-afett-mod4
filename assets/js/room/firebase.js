@@ -1,11 +1,9 @@
 import firebase from "./firebase-config";
 
-// added 4.3.4
 let database = null;
 let userKey = null;
 let roomUsername = null;
 
-// added 4.3.5
 const checkRoomAvailability = async (database) => {
   try {
     const roomSnapshot = await database.once("value");
@@ -20,14 +18,12 @@ const checkRoomAvailability = async (database) => {
     return false;
   } catch (err) {
     console.log(err);
-    return false;
+    return err;
   }
 };
 
-// added 4.3.4; updated 4.3.5; updated 4.3.6
 export const joinRoom = async (roomId, username, { handleUserPresence }) => {
   try {
-    // save username to `firebase.js` file for reference
     roomUsername = username;
 
     // get reference to room
@@ -42,16 +38,11 @@ export const joinRoom = async (roomId, username, { handleUserPresence }) => {
 
     // push user into room and create presence
     const user = await database.push({ username });
-    // get user key that Firebase generates and save it to global variable
     userKey = user.path.pieces_.pop();
-
     // remove user from room if they leave the application
     database.child(`/${userKey}`).onDisconnect().remove();
 
-    // turn on event listeners
     initUserListeners(database, handleUserPresence);
-
-    // in the `joinRoom` function before the return statement; added 4.3.7
     initMessageListeners(database);
 
     return true;
@@ -60,7 +51,6 @@ export const joinRoom = async (roomId, username, { handleUserPresence }) => {
   }
 };
 
-// added 4.3.6
 const initUserListeners = (database, handleUserPresence) => {
   database.on("child_added", (userSnapshot) => {
     if (userSnapshot.key !== userKey && userSnapshot.key !== "messages") {
@@ -77,7 +67,6 @@ const initUserListeners = (database, handleUserPresence) => {
   });
 };
 
-// added 4.3.7
 const initMessageListeners = (database) => {
   database.child("/messages").on("child_added", (messageSnapshot) => {
     const messageData = messageSnapshot.val();

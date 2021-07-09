@@ -1,29 +1,35 @@
 import "../../css/style.scss";
-import { joinRoom, sendMessage } from "./firebase"; // updated 4.3.7
+
 import { renderFilterOptions, handleUpdateFilter, setCanvas } from "./canvas";
+import { joinRoom, sendMessage } from "./firebase";
 
-const username = `user-${Math.round(Math.random() * 100000)}`;
+// lesson 1
+const mainContentEl = document.querySelector("#main-content");
+const alertBoxEl = document.querySelector("#alert-box");
+const roomIdEl = document.querySelector("#room-id");
+const clipboardBtn = document.querySelector("#clipboard-btn");
+const localUserEl = document.querySelector("#local-username");
+const remoteUserEl = document.querySelector("#remote-username");
+const startCallBtnEl = document.querySelector("#start-call-btn");
+const stopCallBtnEl = document.querySelector("#stop-call-btn");
 
+// lesson 2
+const localVideoEl = document.querySelector("#local-video");
+const localCanvasEl = document.querySelector("#local-canvas");
 const filterOptionsSelectEl = document.querySelector("#filter-options");
 
-const mainContentEl = document.querySelector("#main-content"); // Provided by Tamar Auber
-const alertBoxEl = document.querySelector("#alert-box"); // Provided by Tamar Auber
-const roomIdEl = document.querySelector("#room-id"); // 4.1.6 Update Room to Display Room URL for Copying
-const clipboardBtn = document.querySelector("#clipboard-btn"); // 4.1.6 Copy Room URL with Clipboard API
-const localUserEl = document.querySelector("#local-username"); // Provided by Tamar Auber
-const remoteUserEl = document.querySelector("#remote-username"); // Provided by Tamar Auber
-const startCallBtnEl = document.querySelector("#start-call-btn"); // Provided by Tamar Auber
-const stopCallBtnEl = document.querySelector("#stop-call-btn"); // Provided by Tamar Auber
+// lesson 2
+const remoteVideoEl = document.querySelector("#remote-video");
+const remoteCanvasEl = document.querySelector("#remote-canvas");
 
-const localVideoEl = document.querySelector("#local-video"); // 4.2.3 Build Video Element
-const remoteVideoEl = document.querySelector("#remote-video"); // 4.2.3 Build Video Element
+// lesson 3
+const username = `user-${Math.round(Math.random() * 100000)}`;
+// lesson 1
+let roomId = null;
 
-const localCanvasEl = document.querySelector("#local-canvas"); // 4.2.4 Set Up Canvas on Page
-const remoteCanvasEl = document.querySelector("#remote-canvas"); // 4.2.4 Set Up Canvas on Page
+let stream = null;
 
-let roomId = null; // 4.1.6 Update Room to Display Room URL for Copying
-let stream = null; // 4.2.3 Stream Webcam to Page
-
+// lesson 1 (no refactor)
 const getQueryStringParams = (query) => {
   return query
     ? (/^[?#]/.test(query) ? query.slice(1) : query)
@@ -36,17 +42,18 @@ const getQueryStringParams = (query) => {
           return params;
         }, {})
     : {};
-}; // 4.1.6 Update Room to Display Room URL for Copying
+};
 
+// lesson 1 (no refactor)
 const getRoomId = () => {
   const params = getQueryStringParams(document.location.search);
+  // save roomId for reference
   roomId = params.roomId;
   roomIdEl.textContent = roomId;
   return params.roomId;
-}; // 4.1.6 Update Room to Display Room URL for Copying
+};
 
-// Added Lesson 4.1.6; Removed Lesson 4.3.4
-// getRoomId();
+// lesson 1
 const copyToClipboard = async () => {
   if (!navigator.clipboard) {
     // Clipboard API not available
@@ -57,8 +64,9 @@ const copyToClipboard = async () => {
   } catch (err) {
     console.error("Failed to copy!", err);
   }
-}; // 4.1.6 Copy Room URL with Clipboard API
+};
 
+// lesson 2 (no refactor)
 const startVideo = async () => {
   try {
     const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -79,12 +87,13 @@ const startVideo = async () => {
   }
 };
 
-// updated 4.3.7
+// lesson 2 (update in 3)
 const handleSelectChange = (event) => {
   handleUpdateFilter(event.target.value);
   sendMessage({ messageType: "CANVAS_FILTER", message: event.target.value });
 };
 
+// lesson 3 (refactor in lesson 4)
 const initializeVideoChat = async () => {
   // get the room id
   const roomId = getRoomId();
@@ -94,11 +103,10 @@ const initializeVideoChat = async () => {
 
   try {
     const videoStream = await startVideo();
-    // join the room; updated 4.3.6
+    // join the room
     const successfullyJoined = await joinRoom(roomId, username, {
       handleUserPresence,
     });
-
     // if room is full or an error occurs close it off
     if (!successfullyJoined) {
       mainContentEl.classList.add("hidden");
@@ -116,7 +124,7 @@ const initializeVideoChat = async () => {
   }
 };
 
-// added 4.3.5
+// lesson 3
 const handleUserPresence = (isPresent, username) => {
   if (isPresent) {
     startCallBtnEl.removeAttribute("disabled");
@@ -127,15 +135,11 @@ const handleUserPresence = (isPresent, username) => {
   }
 };
 
+// lesson 2
 filterOptionsSelectEl.addEventListener("change", handleSelectChange);
 
-clipboardBtn.addEventListener("click", copyToClipboard); // 4.1.6 Copy Room URL with Clipboard API
+// lesson 1
+clipboardBtn.addEventListener("click", copyToClipboard);
 
-// Added 4.2.3; Removed 4.3.4
-// startVideo();
-
-// renderCanvas(localCanvasEl);
 renderFilterOptions(filterOptionsSelectEl);
-
-// Added 4.3.4
 initializeVideoChat();
