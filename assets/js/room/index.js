@@ -3,6 +3,13 @@ import "../../css/style.scss";
 import { renderFilterOptions, handleUpdateFilter, setCanvas } from "./canvas";
 import { joinRoom, sendMessage } from "./firebase";
 
+// added 4.4.3
+import {
+  initializePeerListeners,
+  openPeerConnection,
+  createOffer,
+} from "./webrtc";
+
 // lesson 1
 const mainContentEl = document.querySelector("#main-content");
 const alertBoxEl = document.querySelector("#alert-box");
@@ -28,6 +35,9 @@ const username = `user-${Math.round(Math.random() * 100000)}`;
 let roomId = null;
 
 let stream = null;
+
+// added 4.4.3
+let remoteStream = null;
 
 // lesson 1 (no refactor)
 const getQueryStringParams = (query) => {
@@ -103,9 +113,18 @@ const initializeVideoChat = async () => {
 
   try {
     const videoStream = await startVideo();
-    // join the room
+
+    // added 4.4.3
+    let peerConnectionHandlers = initializePeerListeners(
+      sendMessage,
+      handleStartRemoteVideo,
+      videoStream
+    );
+
+    // join the room; updated 4.4.3
     const successfullyJoined = await joinRoom(roomId, username, {
       handleUserPresence,
+      ...peerConnectionHandlers,
     });
     // if room is full or an error occurs close it off
     if (!successfullyJoined) {
@@ -135,11 +154,44 @@ const handleUserPresence = (isPresent, username) => {
   }
 };
 
+// added 4.4.3
+const handleStartRemoteVideo = (mediaStream) => {
+  if (!remoteStream) {
+    console.log(mediaStream);
+    remoteVideoEl.srcObject = mediaStream;
+    remoteStream = mediaStream;
+    startCallBtnEl.setAttribute("disabled", true);
+    stopCallBtnEl.removeAttribute("disabled");
+    setCanvas(remoteCanvasEl, remoteVideoEl, true);
+
+    // let remote user know what canvas filter we're using when the video starts
+    sendMessage({
+      messageType: "CANVAS_FILTER",
+      message: filterOptionsSelectEl.value,
+    });
+  }
+};
+
+// added 4.4.3
+const handleStartCall = async () => {
+  try {
+    await openPeerConnection(stream);
+    createOffer(sendMessage);
+    startCallBtnEl.setAttribute("disabled", true);
+    stopCallBtnEl.removeAttribute("disabled");
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 // lesson 2
 filterOptionsSelectEl.addEventListener("change", handleSelectChange);
 
 // lesson 1
 clipboardBtn.addEventListener("click", copyToClipboard);
+
+// added 4.4.3
+startCallBtnEl.addEventListener("click", handleStartCall);
 
 renderFilterOptions(filterOptionsSelectEl);
 initializeVideoChat();
