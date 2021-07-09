@@ -92,8 +92,10 @@ const initializeVideoChat = async () => {
 
   try {
     const videoStream = await startVideo();
-    // join the room
-    const successfullyJoined = await joinRoom(roomId, username);
+    // join the room; updated 4.3.6
+    const successfullyJoined = await joinRoom(roomId, username, {
+      handleUserPresence,
+    });
 
     // if room is full or an error occurs close it off
     if (!successfullyJoined) {
@@ -109,6 +111,17 @@ const initializeVideoChat = async () => {
     console.log(err);
     mainContentEl.classList.add("hidden");
     alertBoxEl.classList.remove("hidden");
+  }
+};
+
+// added 4.3.5
+const handleUserPresence = (isPresent, username) => {
+  if (isPresent) {
+    startCallBtnEl.removeAttribute("disabled");
+    remoteUserEl.textContent = username;
+  } else {
+    startCallBtnEl.setAttribute("disabled", true);
+    remoteUserEl.textContent = "No remote user";
   }
 };
 

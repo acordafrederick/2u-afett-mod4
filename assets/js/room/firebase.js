@@ -24,8 +24,8 @@ const checkRoomAvailability = async (database) => {
   }
 };
 
-// added 4.3.4; updated 4.3.5
-export const joinRoom = async (roomId, username) => {
+// added 4.3.4; updated 4.3.5; updated 4.3.6
+export const joinRoom = async (roomId, username, { handleUserPresence }) => {
   try {
     // save username to `firebase.js` file for reference
     roomUsername = username;
@@ -48,8 +48,28 @@ export const joinRoom = async (roomId, username) => {
     // remove user from room if they leave the application
     database.child(`/${userKey}`).onDisconnect().remove();
 
+    // turn on event listeners
+    initUserListeners(database, handleUserPresence);
+
     return true;
   } catch (err) {
     console.log(err);
   }
+};
+
+// added 4.3.6
+const initUserListeners = (database, handleUserPresence) => {
+  database.on("child_added", (userSnapshot) => {
+    if (userSnapshot.key !== userKey && userSnapshot.key !== "messages") {
+      console.log("User Joined: ", userSnapshot.val());
+      handleUserPresence(true, userSnapshot.val().username);
+    }
+  });
+
+  database.on("child_removed", (userSnapshot) => {
+    if (userSnapshot.key !== userKey && userSnapshot.key !== "messages") {
+      console.log("User Left: ", userSnapshot.val());
+      handleUserPresence(false);
+    }
+  });
 };
