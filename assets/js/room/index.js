@@ -10,11 +10,12 @@ import {
 
 import { joinRoom, sendMessage } from "./firebase";
 
-// added 4.4.3
+// added 4.4.3; updated 4.4.5
 import {
   initializePeerListeners,
   openPeerConnection,
   createOffer,
+  closeConnection,
 } from "./webrtc";
 
 // lesson 1
@@ -128,10 +129,11 @@ const initializeVideoChat = async () => {
       videoStream
     );
 
-    // join the room; updated 4.4.3; updated 4.4.4
+    // join the room; updated 4.4.3; updated 4.4.4; updated 4.4.5
     const successfullyJoined = await joinRoom(roomId, username, {
       handleUserPresence,
       handleUpdateRemoteFilter,
+      stopCall,
       ...peerConnectionHandlers,
     });
     // if room is full or an error occurs close it off
@@ -180,6 +182,22 @@ const handleStartRemoteVideo = (mediaStream) => {
   }
 };
 
+// added 4.4.5
+const stopCall = () => {
+  closeConnection();
+  remoteStream = null;
+  remoteVideoEl.srcObject.getTracks().forEach((track) => track.stop());
+  startCallBtnEl.removeAttribute("disabled");
+  stopCallBtnEl.setAttribute("disabled", true);
+  remoteVideoEl.classList.remove("hidden");
+  remoteCanvasEl.classList.add("hidden");
+};
+
+const handleStopCall = () => {
+  stopCall();
+  sendMessage({ messageType: "HANG_UP", message: "" });
+};
+
 // added 4.4.3
 const handleStartCall = async () => {
   try {
@@ -200,6 +218,9 @@ clipboardBtn.addEventListener("click", copyToClipboard);
 
 // added 4.4.3
 startCallBtnEl.addEventListener("click", handleStartCall);
+
+// added 4.4.5
+stopCallBtnEl.addEventListener("click", handleStopCall);
 
 renderFilterOptions(filterOptionsSelectEl);
 initializeVideoChat();

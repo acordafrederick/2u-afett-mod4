@@ -22,7 +22,7 @@ const checkRoomAvailability = async (database) => {
   }
 };
 
-// updated 4.4.3; updated 4.4.4
+// updated 4.4.3; updated 4.4.4; updated 4.4.5
 export const joinRoom = async (
   roomId,
   username,
@@ -32,6 +32,7 @@ export const joinRoom = async (
     handleOfferMessage,
     handleAnswerMessage,
     handleICECandidateMessage,
+    stopCall,
   }
 ) => {
   try {
@@ -54,12 +55,13 @@ export const joinRoom = async (
     database.child(`/${userKey}`).onDisconnect().remove();
 
     initUserListeners(database, handleUserPresence);
-    // updated 4.4.3; updated 4.4.4
+    // updated 4.4.3; updated 4.4.4; updated 4.4.5
     initMessageListeners(database, {
       handleUpdateRemoteFilter,
       handleOfferMessage,
       handleAnswerMessage,
       handleICECandidateMessage,
+      stopCall,
     });
 
     return true;
@@ -84,7 +86,7 @@ const initUserListeners = (database, handleUserPresence) => {
   });
 };
 
-// updated 4.4.3; updated 4.4.4
+// updated 4.4.3; updated 4.4.4; updated 4.4.5
 const initMessageListeners = (
   database,
   {
@@ -92,6 +94,7 @@ const initMessageListeners = (
     handleOfferMessage,
     handleAnswerMessage,
     handleICECandidateMessage,
+    stopCall,
   }
 ) => {
   database.child("/messages").on("child_added", (messageSnapshot) => {
@@ -112,6 +115,9 @@ const initMessageListeners = (
         break;
       case "ICE_CANDIDATE":
         handleICECandidateMessage(messageData);
+        break;
+      case "HANG_UP":
+        stopCall();
         break;
       default:
         return;

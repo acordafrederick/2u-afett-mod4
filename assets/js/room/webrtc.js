@@ -124,3 +124,22 @@ export const createOffer = async (sendMessage) => {
     console.log(err);
   }
 };
+
+// added 4.4.5
+export const closeConnection = () => {
+  // Close the RTCPeerConnection
+  if (peerConnection) {
+    // Disconnect all our event listeners; we don't want stray events
+    // to interfere with the hangup while it's ongoing.
+    peerConnection.ontrack = null;
+    peerConnection.onnicecandidate = null;
+    peerConnection.oniceconnectionstatechange = null;
+    peerConnection.onsignalingstatechange = null;
+    peerConnection.onicegatheringstatechange = null;
+    peerConnection.onnotificationneeded = null;
+
+    // Close the peer connection
+    peerConnection.close();
+    peerConnection = null;
+  }
+};
