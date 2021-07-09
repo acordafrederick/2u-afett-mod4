@@ -1,6 +1,13 @@
 import "../../css/style.scss";
 
-import { renderFilterOptions, handleUpdateFilter, setCanvas } from "./canvas";
+// updated 4.4.4
+import {
+  renderFilterOptions,
+  handleUpdateFilter,
+  setCanvas,
+  handleUpdateRemoteFilter,
+} from "./canvas";
+
 import { joinRoom, sendMessage } from "./firebase";
 
 // added 4.4.3
@@ -121,9 +128,10 @@ const initializeVideoChat = async () => {
       videoStream
     );
 
-    // join the room; updated 4.4.3
+    // join the room; updated 4.4.3; updated 4.4.4
     const successfullyJoined = await joinRoom(roomId, username, {
       handleUserPresence,
+      handleUpdateRemoteFilter,
       ...peerConnectionHandlers,
     });
     // if room is full or an error occurs close it off
