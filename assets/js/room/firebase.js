@@ -22,12 +22,13 @@ const checkRoomAvailability = async (database) => {
   }
 };
 
-// updated 4.4.3
+// updated 4.4.3; updated 4.4.4
 export const joinRoom = async (
   roomId,
   username,
   {
     handleUserPresence,
+    handleUpdateRemoteFilter,
     handleOfferMessage,
     handleAnswerMessage,
     handleICECandidateMessage,
@@ -53,8 +54,9 @@ export const joinRoom = async (
     database.child(`/${userKey}`).onDisconnect().remove();
 
     initUserListeners(database, handleUserPresence);
-    // updated 4.4.3
+    // updated 4.4.3; updated 4.4.4
     initMessageListeners(database, {
+      handleUpdateRemoteFilter,
       handleOfferMessage,
       handleAnswerMessage,
       handleICECandidateMessage,
@@ -82,10 +84,15 @@ const initUserListeners = (database, handleUserPresence) => {
   });
 };
 
-// updated 4.4.3
+// updated 4.4.3; updated 4.4.4
 const initMessageListeners = (
   database,
-  { handleOfferMessage, handleAnswerMessage, handleICECandidateMessage }
+  {
+    handleUpdateRemoteFilter,
+    handleOfferMessage,
+    handleAnswerMessage,
+    handleICECandidateMessage,
+  }
 ) => {
   database.child("/messages").on("child_added", (messageSnapshot) => {
     const messageData = messageSnapshot.val();
@@ -94,6 +101,9 @@ const initMessageListeners = (
     }
 
     switch (messageData.messageType) {
+      case "CANVAS_FILTER":
+        handleUpdateRemoteFilter(messageData.message);
+        break;
       case "OFFER":
         handleOfferMessage(messageData);
         break;
