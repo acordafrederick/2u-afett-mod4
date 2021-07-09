@@ -22,7 +22,17 @@ const checkRoomAvailability = async (database) => {
   }
 };
 
-export const joinRoom = async (roomId, username, { handleUserPresence }) => {
+// updated 4.4.3
+export const joinRoom = async (
+  roomId,
+  username,
+  {
+    handleUserPresence,
+    handleOfferMessage,
+    handleAnswerMessage,
+    handleICECandidateMessage,
+  }
+) => {
   try {
     roomUsername = username;
 
@@ -43,7 +53,12 @@ export const joinRoom = async (roomId, username, { handleUserPresence }) => {
     database.child(`/${userKey}`).onDisconnect().remove();
 
     initUserListeners(database, handleUserPresence);
-    initMessageListeners(database);
+    // updated 4.4.3
+    initMessageListeners(database, {
+      handleOfferMessage,
+      handleAnswerMessage,
+      handleICECandidateMessage,
+    });
 
     return true;
   } catch (err) {
@@ -67,13 +82,30 @@ const initUserListeners = (database, handleUserPresence) => {
   });
 };
 
-const initMessageListeners = (database) => {
+// updated 4.4.3
+const initMessageListeners = (
+  database,
+  { handleOfferMessage, handleAnswerMessage, handleICECandidateMessage }
+) => {
   database.child("/messages").on("child_added", (messageSnapshot) => {
     const messageData = messageSnapshot.val();
     if (messageData.username === roomUsername) {
       return;
     }
-    console.log(messageData);
+
+    switch (messageData.messageType) {
+      case "OFFER":
+        handleOfferMessage(messageData);
+        break;
+      case "ANSWER":
+        handleAnswerMessage(messageData);
+        break;
+      case "ICE_CANDIDATE":
+        handleICECandidateMessage(messageData);
+        break;
+      default:
+        return;
+    }
   });
 };
 
