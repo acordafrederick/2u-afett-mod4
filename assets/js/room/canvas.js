@@ -1,6 +1,5 @@
 let canvasEffect = null;
 
-// added. 4.4.4
 let remoteCanvasEffect = null;
 
 const noFilter = (ctx, videoEl) => {
@@ -8,7 +7,7 @@ const noFilter = (ctx, videoEl) => {
 };
 
 const pixelate = (ctx, videoEl) => {
-  const pixelSize = 20;
+  const pixelSize = 10;
   const scale = 1 / pixelSize;
   const wScaled = ctx.canvas.width * scale;
   const hScaled = ctx.canvas.height * scale;
@@ -30,26 +29,27 @@ const pixelate = (ctx, videoEl) => {
 
 const invert = (ctx, videoEl) => {
   ctx.drawImage(videoEl, 0, 0, ctx.canvas.width, ctx.canvas.height);
-
-  const data = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+  //get the canvas data
+  var data = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
   //invert each pixel
   for (let n = 0; n < data.width * data.height; n++) {
-    const index = n * 4;
-
+    var index = n * 4;
     data.data[index + 0] = 255 - data.data[index + 0];
     data.data[index + 1] = 255 - data.data[index + 1];
     data.data[index + 2] = 255 - data.data[index + 2];
+    //don't touch the alpha
   }
 
+  //set the data back
   ctx.putImageData(data, 0, 0);
 };
 
-// updated 4.4.4
 const renderCanvas = (canvasEl, videoEl, isRemote = false) => {
   const ctx = canvasEl.getContext("2d");
   videoEl.play();
 
   const draw = () => {
+    // clear the screen
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     const effect = isRemote ? remoteCanvasEffect : canvasEffect;
     switch (effect) {
@@ -72,7 +72,6 @@ const renderCanvas = (canvasEl, videoEl, isRemote = false) => {
   draw();
 };
 
-// updated 4.4.4
 export const setCanvas = (canvasEl, videoEl, isRemote = false) => {
   canvasEl.width = videoEl.clientWidth;
   canvasEl.height = videoEl.clientHeight;
@@ -85,7 +84,6 @@ export const handleUpdateFilter = (effect) => {
   canvasEffect = effect;
 };
 
-// added 4.4.4
 export const handleUpdateRemoteFilter = (effect) => {
   remoteCanvasEffect = effect;
 };

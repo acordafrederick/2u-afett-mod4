@@ -1,16 +1,13 @@
 import "../../css/style.scss";
 
-// updated 4.4.4
 import {
   renderFilterOptions,
   handleUpdateFilter,
   setCanvas,
   handleUpdateRemoteFilter,
 } from "./canvas";
-
 import { joinRoom, sendMessage } from "./firebase";
 
-// added 4.4.3; updated 4.4.5
 import {
   initializePeerListeners,
   openPeerConnection,
@@ -25,8 +22,6 @@ const roomIdEl = document.querySelector("#room-id");
 const clipboardBtn = document.querySelector("#clipboard-btn");
 const localUserEl = document.querySelector("#local-username");
 const remoteUserEl = document.querySelector("#remote-username");
-const startCallBtnEl = document.querySelector("#start-call-btn");
-const stopCallBtnEl = document.querySelector("#stop-call-btn");
 
 // lesson 2
 const localVideoEl = document.querySelector("#local-video");
@@ -37,15 +32,19 @@ const filterOptionsSelectEl = document.querySelector("#filter-options");
 const remoteVideoEl = document.querySelector("#remote-video");
 const remoteCanvasEl = document.querySelector("#remote-canvas");
 
+// lesson 1
+const startCallBtnEl = document.querySelector("#start-call-btn");
+const stopCallBtnEl = document.querySelector("#stop-call-btn");
+
 // lesson 3
 const username = `user-${Math.round(Math.random() * 100000)}`;
 // lesson 1
 let roomId = null;
 
 let stream = null;
-
-// added 4.4.3
 let remoteStream = null;
+// lesson 4
+let peerConnectionHandlers = null;
 
 // lesson 1 (no refactor)
 const getQueryStringParams = (query) => {
@@ -105,7 +104,7 @@ const startVideo = async () => {
   }
 };
 
-// lesson 2 (update in 3)
+// lesson 2 (update in 4)
 const handleSelectChange = (event) => {
   handleUpdateFilter(event.target.value);
   sendMessage({ messageType: "CANVAS_FILTER", message: event.target.value });
@@ -122,14 +121,12 @@ const initializeVideoChat = async () => {
   try {
     const videoStream = await startVideo();
 
-    // added 4.4.3
-    let peerConnectionHandlers = initializePeerListeners(
+    peerConnectionHandlers = initializePeerListeners(
       sendMessage,
       handleStartRemoteVideo,
       videoStream
     );
-
-    // join the room; updated 4.4.3; updated 4.4.4; updated 4.4.5
+    // join the room
     const successfullyJoined = await joinRoom(roomId, username, {
       handleUserPresence,
       handleUpdateRemoteFilter,
@@ -160,45 +157,12 @@ const handleUserPresence = (isPresent, username) => {
     remoteUserEl.textContent = username;
   } else {
     startCallBtnEl.setAttribute("disabled", true);
+    stopCallBtnEl.setAttribute("disabled", true);
     remoteUserEl.textContent = "No remote user";
   }
 };
 
-// added 4.4.3
-const handleStartRemoteVideo = (mediaStream) => {
-  if (!remoteStream) {
-    console.log(mediaStream);
-    remoteVideoEl.srcObject = mediaStream;
-    remoteStream = mediaStream;
-    startCallBtnEl.setAttribute("disabled", true);
-    stopCallBtnEl.removeAttribute("disabled");
-    setCanvas(remoteCanvasEl, remoteVideoEl, true);
-
-    // let remote user know what canvas filter we're using when the video starts
-    sendMessage({
-      messageType: "CANVAS_FILTER",
-      message: filterOptionsSelectEl.value,
-    });
-  }
-};
-
-// added 4.4.5
-const stopCall = () => {
-  closeConnection();
-  remoteStream = null;
-  remoteVideoEl.srcObject.getTracks().forEach((track) => track.stop());
-  startCallBtnEl.removeAttribute("disabled");
-  stopCallBtnEl.setAttribute("disabled", true);
-  remoteVideoEl.classList.remove("hidden");
-  remoteCanvasEl.classList.add("hidden");
-};
-
-const handleStopCall = () => {
-  stopCall();
-  sendMessage({ messageType: "HANG_UP", message: "" });
-};
-
-// added 4.4.3
+// lesson 4
 const handleStartCall = async () => {
   try {
     await openPeerConnection(stream);
@@ -210,17 +174,50 @@ const handleStartCall = async () => {
   }
 };
 
+// lesson 4
+const handleStartRemoteVideo = (mediaStream) => {
+  if (!remoteStream) {
+    console.log(mediaStream);
+    remoteVideoEl.srcObject = mediaStream;
+    remoteStream = mediaStream;
+    startCallBtnEl.setAttribute("disabled", true);
+    stopCallBtnEl.removeAttribute("disabled");
+    setCanvas(remoteCanvasEl, remoteVideoEl, true);
+
+    // let remote user know what canvas filter we're using
+    sendMessage({
+      messageType: "CANVAS_FILTER",
+      message: filterOptionsSelectEl.value,
+    });
+  }
+};
+
+// lesson 4
+const stopCall = () => {
+  closeConnection();
+  remoteStream = null;
+  remoteVideoEl.srcObject.getTracks().forEach((track) => track.stop());
+  startCallBtnEl.removeAttribute("disabled");
+  stopCallBtnEl.setAttribute("disabled", true);
+  remoteVideoEl.classList.remove("hidden");
+  remoteCanvasEl.classList.add("hidden");
+};
+
+// lesson 4
+const handleStopCall = () => {
+  stopCall();
+  sendMessage({ messageType: "HANG_UP", message: "" });
+};
+
+// lesson 4
+startCallBtnEl.addEventListener("click", handleStartCall);
+stopCallBtnEl.addEventListener("click", handleStopCall);
+
 // lesson 2
 filterOptionsSelectEl.addEventListener("change", handleSelectChange);
 
 // lesson 1
 clipboardBtn.addEventListener("click", copyToClipboard);
-
-// added 4.4.3
-startCallBtnEl.addEventListener("click", handleStartCall);
-
-// added 4.4.5
-stopCallBtnEl.addEventListener("click", handleStopCall);
 
 renderFilterOptions(filterOptionsSelectEl);
 initializeVideoChat();
