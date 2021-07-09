@@ -1,7 +1,5 @@
-// added 4.4.3
 import "webrtc-adapter";
 
-// added 4.4.3
 let peerConnection = null;
 let handleICECandidateEvent = null;
 let handleTrackEvent = null;
@@ -9,9 +7,7 @@ let handleOfferMessage = null;
 let handleAnswerMessage = null;
 let handleICECandidateMessage = null;
 
-// added 4.4.3
 export const openPeerConnection = async (videoStream) => {
-  // establish new peer connection
   peerConnection = new RTCPeerConnection({
     iceServers: [
       {
@@ -24,7 +20,6 @@ export const openPeerConnection = async (videoStream) => {
     iceCandidatePoolSize: 10,
   });
 
-  // add event listeners
   peerConnection.onicecandidate = handleICECandidateEvent;
   peerConnection.ontrack = handleTrackEvent;
 
@@ -34,7 +29,6 @@ export const openPeerConnection = async (videoStream) => {
   });
 };
 
-// added 4.4.3
 export const initializePeerListeners = (
   sendMessage,
   handleStartRemoteVideo,
@@ -102,10 +96,13 @@ export const initializePeerListeners = (
     }
   };
 
-  return { handleOfferMessage, handleAnswerMessage, handleICECandidateMessage };
+  return {
+    handleOfferMessage,
+    handleAnswerMessage,
+    handleICECandidateMessage,
+  };
 };
 
-// added 4.4.3
 export const createOffer = async (sendMessage) => {
   try {
     const offer = await peerConnection.createOffer();
@@ -125,7 +122,6 @@ export const createOffer = async (sendMessage) => {
   }
 };
 
-// added 4.4.5
 export const closeConnection = () => {
   // Close the RTCPeerConnection
   if (peerConnection) {
