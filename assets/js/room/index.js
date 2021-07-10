@@ -15,6 +15,9 @@ import {
   closeConnection,
 } from "./webrtc";
 
+// added 4.5.3
+import { getNotificationPermission, sendNotification } from "./notifications";
+
 // lesson 1
 const mainContentEl = document.querySelector("#main-content");
 const alertBoxEl = document.querySelector("#alert-box");
@@ -150,15 +153,17 @@ const initializeVideoChat = async () => {
   }
 };
 
-// lesson 3
+// lesson 3; updated 4.5.3
 const handleUserPresence = (isPresent, username) => {
   if (isPresent) {
     startCallBtnEl.removeAttribute("disabled");
     remoteUserEl.textContent = username;
+    sendNotification("online");
   } else {
     startCallBtnEl.setAttribute("disabled", true);
     stopCallBtnEl.setAttribute("disabled", true);
     remoteUserEl.textContent = "No remote user";
+    sendNotification("offline");
   }
 };
 
@@ -174,10 +179,9 @@ const handleStartCall = async () => {
   }
 };
 
-// lesson 4
+// lesson 4; updated 4.5.3
 const handleStartRemoteVideo = (mediaStream) => {
   if (!remoteStream) {
-    console.log(mediaStream);
     remoteVideoEl.srcObject = mediaStream;
     remoteStream = mediaStream;
     startCallBtnEl.setAttribute("disabled", true);
@@ -189,10 +193,11 @@ const handleStartRemoteVideo = (mediaStream) => {
       messageType: "CANVAS_FILTER",
       message: filterOptionsSelectEl.value,
     });
+    sendNotification("connected");
   }
 };
 
-// lesson 4
+// lesson 4; updated 4.5.3
 const stopCall = () => {
   closeConnection();
   remoteStream = null;
@@ -201,6 +206,7 @@ const stopCall = () => {
   stopCallBtnEl.setAttribute("disabled", true);
   remoteVideoEl.classList.remove("hidden");
   remoteCanvasEl.classList.add("hidden");
+  sendNotification("stopped");
 };
 
 // lesson 4
@@ -221,3 +227,5 @@ clipboardBtn.addEventListener("click", copyToClipboard);
 
 renderFilterOptions(filterOptionsSelectEl);
 initializeVideoChat();
+// added 4.5.3
+getNotificationPermission();
