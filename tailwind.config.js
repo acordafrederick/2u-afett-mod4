@@ -1,18 +1,21 @@
 module.exports = {
-  purge: ['./**/*.html'],
+  purge: ["./**/*.html"],
   darkMode: false,
   theme: {
     extend: {
       fontFamily: {
         sans: '"Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI",Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
-        header: ['Major Mono Display', 'monospace'],
+        header: ["Major Mono Display", "monospace"],
+      },
+      scale: {
+        flip: "-1",
       },
     },
   },
   variants: {
     extend: {
-      opacity: ['disabled'],
+      opacity: ["disabled"],
     },
   },
-  plugins: [require('@tailwindcss/forms')],
+  plugins: [require("@tailwindcss/forms")],
 };
